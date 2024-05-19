@@ -1,6 +1,5 @@
 #include "module.h"
 
-#include <csignal>
 #include <iostream>
 
 std::string GetLastErrorAsString() {
@@ -66,7 +65,6 @@ void Module::enumModules(DWORD pid, const char* pName, std::vector<Module::modul
 }
 
 void Module::enumFunctions(module* mod) {
-	//HMODULE lib = LoadLibraryEx(mod->szModule, NULL, DONT_RESOLVE_DLL_REFERENCES);
 	HMODULE lib = LoadLibrary(mod->szModule);
 
 	if (!lib) {
@@ -75,7 +73,7 @@ void Module::enumFunctions(module* mod) {
 
 	PIMAGE_NT_HEADERS header = (PIMAGE_NT_HEADERS)((BYTE*)lib + ((PIMAGE_DOS_HEADER)lib)->e_lfanew);
 
-	PIMAGE_EXPORT_DIRECTORY exports = 
+	PIMAGE_EXPORT_DIRECTORY exports =
 		(PIMAGE_EXPORT_DIRECTORY)((BYTE*)lib + header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 
 	auto addressOfNames = exports->AddressOfNames;
@@ -83,10 +81,7 @@ void Module::enumFunctions(module* mod) {
 	int* nameTable = (int*)((BYTE*)lib + addressOfNames);
 	for (int i = 0; i < exports->NumberOfNames; i++) {
 		mod->exports.push_back((char*)((BYTE*)lib + nameTable[i]));
-		//printf("Export: %s\n", (char*)((BYTE*)lib + nameTable[i]));
 	}
-
-	//FreeLibrary(lib);
 }
 
 bool cmpBytes(char* buf1, char* buf2, int size) {

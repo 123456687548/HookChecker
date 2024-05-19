@@ -12,7 +12,6 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
 
-	//auto pName = "PE-bear.exe";
 	auto pName = argv[1];
 	auto pid = Process::GetProcessId(pName);
 	auto pHandle = OpenProcess(PROCESS_VM_READ, false, pid);
