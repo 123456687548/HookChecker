@@ -93,13 +93,17 @@ bool cmpBytes(char* buf1, char* buf2, int size) {
 	return true;
 }
 
-bool Module::checkHooks(HANDLE pHandle, module* mod) {
+bool Module::checkHooks(HANDLE pHandle, module* mod, bool printAll) {
 	auto hModule = LoadLibrary(mod->szModule);
 
 	if (!hModule) {
-		std::cout << "[-] Can't load (" << mod->szModule << ")" << std::endl;
+		if (printAll) {
+			printf("[-] Can't load (%s)\n\n", mod->szModule);
+		}
 		return false;
 	}
+
+	bool needNewLine = false;
 
 	for (auto funcName : mod->exports) {
 		auto func = GetProcAddress(hModule, funcName);
@@ -108,16 +112,24 @@ bool Module::checkHooks(HANDLE pHandle, module* mod) {
 
 		bool success = ReadProcessMemory(pHandle, (LPCVOID)func, buf, 5, 0);
 		if (!success) {
-			std::cout << "[-] Can't read (" << mod->szModule << ") - [" << funcName << " : 0x" << std::hex << func << "]" << std::endl;
-			return false;
+			if(printAll) {
+				printf("[-] Can't read (%s) - [%s : 0x%p]\n", mod->szModule, funcName, func);
+				needNewLine = true;
+			}
+			continue;
 		}
 
 		bool hasHook = !cmpBytes(buf, (char*)func, 5);
 
 		if (hasHook) {
-			std::cout << "[+] (" << mod->szModule << ") - [" << funcName << " : 0x" << std::hex << func << "] is likely hooked" << std::endl;
+			printf("[+] (%s) - [%s : 0x%p] is likely hooked\n", mod->szModule, funcName, func);
+			needNewLine = true;
 		}
 	}
 
 	FreeLibrary(hModule);
+
+	if(needNewLine) {
+		printf("\n");
+	}
 }

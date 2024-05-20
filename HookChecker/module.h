@@ -15,5 +15,5 @@ namespace Module {
 	uintptr_t GetModuleBaseAddress(DWORD pid, const char* modName);
 	void enumModules(DWORD pid, const char* pName, std::vector<Module::module>* modules);
 	void enumFunctions(module* mod);
-	bool checkHooks(HANDLE pHandle, module* mod);
+	bool checkHooks(HANDLE pHandle, module* mod, bool printAll);
 }
