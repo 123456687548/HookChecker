@@ -97,6 +97,7 @@ bool Module::checkHooks(HANDLE pHandle, module* mod) {
 	auto hModule = LoadLibrary(mod->szModule);
 
 	if (!hModule) {
+		std::cout << "[-] Can't load (" << mod->szModule << ")" << std::endl;
 		return false;
 	}
 
@@ -107,14 +108,14 @@ bool Module::checkHooks(HANDLE pHandle, module* mod) {
 
 		bool success = ReadProcessMemory(pHandle, (LPCVOID)func, buf, 5, 0);
 		if (!success) {
-			std::cout << "(" << mod->szModule << ") - [" << funcName << "] can't read" << std::endl;
+			std::cout << "[-] Can't read (" << mod->szModule << ") - [" << funcName << " : 0x" << std::hex << func << "]" << std::endl;
 			return false;
 		}
 
 		bool hasHook = !cmpBytes(buf, (char*)func, 5);
 
 		if (hasHook) {
-			std::cout << "(" << mod->szModule << ") - [" << funcName << " : 0x" << std::hex << func << "] is hooked" << std::endl;
+			std::cout << "[+] (" << mod->szModule << ") - [" << funcName << " : 0x" << std::hex << func << "] is likely hooked" << std::endl;
 		}
 	}
 
